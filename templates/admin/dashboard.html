@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MDU Administration</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body class="admin-body">
+
+{% if not unlocked %}
+
+<div class="admin-lock-screen">
+
+    <div class="admin-lock-card">
+
+        <div class="admin-crown">♛</div>
+
+        <div class="admin-mini-brand">
+            MARTINS DEMATRIX UNIVERSITY
+        </div>
+
+        <h1>Administration</h1>
+
+        <p>
+            Authorized personnel only. Enter the administrator
+            security PIN to continue.
+        </p>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="admin-alert {{ category }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <form method="POST" class="admin-unlock-form">
+
+            <label>Administrator PIN</label>
+
+            <input
+                type="password"
+                name="pin"
+                placeholder="Enter secure PIN"
+                autocomplete="off"
+                required
+            >
+
+            <button type="submit" class="admin-main-btn">
+                🔐 Unlock Control Center
+            </button>
+
+        </form>
+
+        <a href="{{ url_for('index') }}" class="admin-back-link">
+            ← Return to University
+        </a>
+
+    </div>
+
+</div>
+
+{% else %}
+
+<div class="admin-layout">
+
+    <aside class="admin-sidebar">
+
+        <div class="admin-sidebar-brand">
+            <div class="admin-logo">MD</div>
+
+            <div>
+                <strong>MDU</strong>
+                <span>ADMINISTRATION</span>
+            </div>
+        </div>
+
+        <nav class="admin-nav">
+
+            <a href="#overview" class="active">⌂ Dashboard</a>
+            <a href="#students">♙ Students</a>
+            <a href="#results">▣ Results</a>
+            <a href="#announcements">◈ Announcements</a>
+            <a href="#assignments">✎ Assignments</a>
+            <a href="#courses">▤ Courses</a>
+
+        </nav>
+
+        <div class="admin-sidebar-bottom">
+            <a href="{{ url_for('index') }}">← University Site</a>
+            <a href="{{ url_for('admin_logout') }}" class="admin-logout">
+                ⇥ Secure Logout
+            </a>
+        </div>
+
+    </aside>
+
+
+    <main class="admin-main">
+
+        <header class="admin-topbar">
+
+            <div>
+                <span class="admin-eyebrow">
+                    MARTINS DEMATRIX UNIVERSITY
+                </span>
+
+                <h1>Command Center</h1>
+            </div>
+
+            <div class="admin-status">
+                <span class="status-dot"></span>
+                Administrator Active
+            </div>
+
+        </header>
+
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="admin-messages">
+                    {% for category, message in messages %}
+                        <div class="admin-alert {{ category }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+
+        <!-- OVERVIEW -->
+
+        <section id="overview" class="admin-section">
+
+            <div class="admin-section-heading">
+                <div>
+                    <span>CONTROL CENTER</span>
+                    <h2>University Overview</h2>
+                </div>
+            </div>
+
+            <div class="admin-stat-grid">
+
+                <div class="admin-stat-card">
+                    <span>STUDENTS</span>
+                    <strong>{{ student_count }}</strong>
+                    <small>Registered accounts</small>
+                </div>
+
+                <div class="admin-stat-card">
+                    <span>COURSES</span>
+                    <strong>{{ course_count }}</strong>
+                    <small>Academic courses</small>
+                </div>
+
+                <div class="admin-stat-card">
+                    <span>RESULTS</span>
+                    <strong>{{ result_count }}</strong>
+                    <small>Published records</small>
+                </div>
+
+                <div class="admin-stat-card">
+                    <span>ANNOUNCEMENTS</span>
+                    <strong>{{ announcement_count }}</strong>
+                    <small>Public notices</small>
+                </div>
+
+                <div class="admin-stat-card">
+                    <span>ASSIGNMENTS</span>
+                    <strong>{{ assignment_count }}</strong>
+                    <small>Academic tasks</small>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- STUDENTS -->
+
+        <section id="students" class="admin-section">
+
+            <div class="admin-section-heading">
+                <div>
+                    <span>STUDENT MANAGEMENT</span>
+                    <h2>All Student Accounts</h2>
+                </div>
+            </div>
+
+            <div class="admin-card">
+
+                <div class="admin-table-wrap">
+
+                    <table class="admin-table">
+
+                        <thead>
+                            <tr>
+                                <th>Matric</th>
+                                <th>Student</th>
+                                <th>Email</th>
+                                <th>Department</th>
+                                <th>Level</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                        {% for student in students %}
+
+                            <tr>
+
+                                <td>
+                                    <strong>{{ student["matric_no"] }}</strong>
+                                </td>
+
+                                <td>
+                                    {{ student["full_name"] }}
+                                </td>
+
+                                <td>
+                                    {{ student["email"] }}
+                                </td>
+
+                                <td>
+                                    {{ student["department"] }}
+                                </td>
+
+                                <td>
+                                    {{ student["level"] }}
+                                </td>
+
+                                <td>
+                                    <a
+                                        class="admin-view-btn"
+                                        href="{{ url_for('admin_student', student_id=student['id']) }}"
+                                    >
+                                        View
+                                    </a>
+                                </td>
+
+                            </tr>
+
+                        {% else %}
+
+                            <tr>
+                                <td colspan="6" class="admin-empty">
+                                    No student accounts yet.
+                                </td>
+                            </tr>
+
+                        {% endfor %}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- RESULTS -->
+
+        <section id="results" class="admin-section">
+
+            <div class="admin-section-heading">
+                <div>
+                    <span>ACADEMIC MANAGEMENT</span>
+                    <h2>Post Student Result</h2>
+                </div>
+            </div>
+
+            <div class="admin-card admin-form-card">
+
+                <form method="POST" action="{{ url_for('admin_add_result') }}">
+
+                    <div class="admin-form-grid">
+
+                        <div>
+                            <label>Student</label>
+
+                            <select name="student_id" required>
+
+                                <option value="">
+                                    Select student
+                                </option>
+
+                                {% for student in students %}
+
+                                <option value="{{ student['id'] }}">
+                                    {{ student['matric_no'] }} — {{ student['full_name'] }}
+                                </option>
+
+                                {% endfor %}
+
+                            </select>
+                        </div>
+
+                        <div>
+                            <label>Course Code</label>
+                            <input
+                                name="course_code"
+                                placeholder="CSC101"
+                                required
+                            >
+                        </div>
+
+                        <div>
+                            <label>Course Title</label>
+                            <input
+                                name="course_title"
+                                placeholder="Introduction to Computer Science"
+                                required
+                            >
+                        </div>
+
+                        <div>
+                            <label>Units</label>
+                            <input
+                                type="number"
+                                name="units"
+                                min="1"
+                                max="10"
+                                placeholder="3"
+                                required
+                            >
+                        </div>
+
+                        <div>
+                            <label>Score</label>
+                            <input
+                                type="number"
+                                name="score"
+                                min="0"
+                                max="100"
+                                placeholder="85"
+                                required
+                            >
+                        </div>
+
+                        <div>
+                            <label>Semester</label>
+
+                            <select name="semester" required>
+                                <option value="First">First Semester</option>
+                                <option value="Second">Second Semester</option>
+                            </select>
+
+                        </div>
+
+                    </div>
+
+                    <button class="admin-main-btn" type="submit">
+                        ✓ Publish Result
+                    </button>
+
+                </form>
+
+            </div>
+
+
+            <div class="admin-card">
+
+                <h3>Recently Published Results</h3>
+
+                <div class="admin-table-wrap">
+
+                    <table class="admin-table">
+
+                        <thead>
+                            <tr>
+                                <th>Student</th>
+                                <th>Course</th>
+                                <th>Score</th>
+                                <th>Grade</th>
+                                <th>GP</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                        {% for result in results %}
+
+                            <tr>
+
+                                <td>
+                                    {{ result["matric_no"] }}<br>
+                                    <small>{{ result["full_name"] }}</small>
+                                </td>
+
+                                <td>
+                                    {{ result["course_code"] }}<br>
+                                    <small>{{ result["course_title"] }}</small>
+                                </td>
+
+                                <td>{{ result["score"] }}</td>
+
+                                <td>
+                                    <strong>{{ result["grade"] }}</strong>
+                                </td>
+
+                                <td>
+                                    {{ result["grade_point"] }}
+                                </td>
+
+                                <td>
+
+                                    <form
+                                        method="POST"
+                                        action="{{ url_for('admin_delete_result', result_id=result['id']) }}"
+                                        onsubmit="return confirm('Delete this result permanently?');"
+                                    >
+                                        <button class="admin-delete-btn">
+                                            Delete
+                                        </button>
+                                    </form>
+
+                                </td>
+
+                            </tr>
+
+                        {% else %}
+
+                            <tr>
+                                <td colspan="6" class="admin-empty">
+                                    No results have been published.
+                                </td>
+                            </tr>
+
+                        {% endfor %}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ANNOUNCEMENTS -->
+
+        <section id="announcements" class="admin-section">
+
+            <div class="admin-section-heading">
+                <div>
+                    <span>PUBLIC COMMUNICATION</span>
+                    <h2>Announcements</h2>
+                </div>
+            </div>
+
+            <div class="admin-card admin-form-card">
+
+                <form method="POST" action="{{ url_for('admin_add_announcement') }}">
+
+                    <label>Announcement Title</label>
+
+                    <input
+                        name="title"
+                        placeholder="Important university announcement"
+                        required
+                    >
+
+                    <label>Message</label>
+
+                    <textarea
+                        name="message"
+                        rows="5"
+                        placeholder="Write the announcement here..."
+                        required
+                    ></textarea>
+
+                    <button class="admin-main-btn">
+                        📢 Publish Announcement
+                    </button>
+
+                </form>
+
+            </div>
+
+
+            <div class="admin-content-list">
+
+                {% for announcement in announcements %}
+
+                <div class="admin-content-item">
+
+                    <div>
+                        <span class="content-label">PUBLIC NOTICE</span>
+                        <h3>{{ announcement["title"] }}</h3>
+                        <p>{{ announcement["message"] }}</p>
+                    </div>
+
+                    <form
+                        method="POST"
+                        action="{{ url_for('admin_delete_announcement', announcement_id=announcement['id']) }}"
+                        onsubmit="return confirm('Delete this announcement?');"
+                    >
+                        <button class="admin-delete-btn">
+                            Delete
+                        </button>
+                    </form>
+
+                </div>
+
+                {% endfor %}
+
+            </div>
+
+        </section>
+
+
+        <!-- ASSIGNMENTS -->
+
+        <section id="assignments" class="admin-section">
+
+            <div class="admin-section-heading">
+                <div>
+                    <span>ACADEMIC WORK</span>
+                    <h2>Assignments</h2>
+                </div>
+            </div>
+
+            <div class="admin-card admin-form-card">
+
+                <form method="POST" action="{{ url_for('admin_add_assignment') }}">
+
+                    <div class="admin-form-grid">
+
+                        <div>
+                            <label>Assignment Title</label>
+
+                            <input
+                                name="title"
+                                placeholder="Python Programming Assignment"
+                                required
+                            >
+                        </div>
+
+                        <div>
+                            <label>Course Code</label>
+
+                            <input
+                                name="course_code"
+                                placeholder="CSC101"
+                            >
+                        </div>
+
+                        <div>
+                            <label>Due Date</label>
+
+                            <input
+                                type="date"
+                                name="due_date"
+                            >
+                        </div>
+
+                    </div>
+
+                    <label>Description / Instructions</label>
+
+                    <textarea
+                        name="description"
+                        rows="6"
+                        placeholder="Write the assignment instructions..."
+                        required
+                    ></textarea>
+
+                    <button class="admin-main-btn">
+                        ✎ Publish Assignment
+                    </button>
+
+                </form>
+
+            </div>
+
+
+            <div class="admin-content-list">
+
+                {% for assignment in assignments %}
+
+                <div class="admin-content-item">
+
+                    <div>
+
+                        <span class="content-label">
+                            {{ assignment["course_code"] or "GENERAL" }}
+                        </span>
+
+                        <h3>{{ assignment["title"] }}</h3>
+
+                        <p>{{ assignment["description"] }}</p>
+
+                        {% if assignment["due_date"] %}
+                            <small>
+                                Due: {{ assignment["due_date"] }}
+                            </small>
+                        {% endif %}
+
+                    </div>
+
+                    <form
+                        method="POST"
+                        action="{{ url_for('admin_delete_assignment', assignment_id=assignment['id']) }}"
+                        onsubmit="return confirm('Delete this assignment?');"
+                    >
+                        <button class="admin-delete-btn">
+                            Delete
+                        </button>
+                    </form>
+
+                </div>
+
+                {% endfor %}
+
+            </div>
+
+        </section>
+
+
+        <!-- COURSES -->
+
+        <section id="courses" class="admin-section">
+
+            <div class="admin-section-heading">
+                <div>
+                    <span>ACADEMIC STRUCTURE</span>
+                    <h2>Course Management</h2>
+                </div>
+            </div>
+
+            <div class="admin-card admin-form-card">
+
+                <form method="POST" action="{{ url_for('admin_add_course') }}">
+
+                    <div class="admin-form-grid">
+
+                        <div>
+                            <label>Course Code</label>
+                            <input name="code" placeholder="CSC201" required>
+                        </div>
+
+                        <div>
+                            <label>Course Title</label>
+                            <input name="title" placeholder="Data Structures" required>
+                        </div>
+
+                        <div>
+                            <label>Units</label>
+                            <input
+                                type="number"
+                                name="units"
+                                min="1"
+                                max="10"
+                                placeholder="3"
+                                required
+                            >
+                        </div>
+
+                        <div>
+                            <label>Semester</label>
+
+                            <select name="semester" required>
+                                <option value="First">First</option>
+                                <option value="Second">Second</option>
+                            </select>
+
+                        </div>
+
+                    </div>
+
+                    <button class="admin-main-btn">
+                        + Add Course
+                    </button>
+
+                </form>
+
+            </div>
+
+
+            <div class="admin-card">
+
+                <div class="admin-table-wrap">
+
+                    <table class="admin-table">
+
+                        <thead>
+                            <tr>
+                                <th>Code</th>
+                                <th>Course</th>
+                                <th>Units</th>
+                                <th>Semester</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                        {% for course in courses %}
+
+                        <tr>
+
+                            <td>
+                                <strong>{{ course["code"] }}</strong>
+                            </td>
+
+                            <td>{{ course["title"] }}</td>
+
+                            <td>{{ course["units"] }}</td>
+
+                            <td>{{ course["semester"] }}</td>
+
+                            <td>
+
+                                <form
+                                    method="POST"
+                                    action="{{ url_for('admin_delete_course', course_id=course['id']) }}"
+                                    onsubmit="return confirm('Delete this course?');"
+                                >
+                                    <button class="admin-delete-btn">
+                                        Delete
+                                    </button>
+                                </form>
+
+                            </td>
+
+                        </tr>
+
+                        {% endfor %}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <footer class="admin-footer">
+            Martins DeMatrix University Administration •
+            Secure Management Center • © 2026
+        </footer>
+
+    </main>
+
+</div>
+
+{% endif %}
+
+</body>
+</html>

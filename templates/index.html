@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Martins DeMatrix University</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+<header class="navbar">
+    <div class="brand">
+        <div class="logo">MDU</div>
+        <div>
+            <strong>Martins DeMatrix University</strong>
+            <small>Knowledge • Innovation • Excellence</small>
+        </div>
+    </div>
+
+    <nav>
+        <a href="/">Home</a>
+        <a href="#about">About</a>
+        <a href="#faculties">Faculties</a>
+        <a href="#admission">Admissions</a>
+        <a href="/login" class="nav-button">Student Portal</a>
+    </nav>
+</header>
+
+<section class="hero">
+    <div class="hero-content">
+        <span class="badge">WELCOME TO MDU</span>
+
+        <h1>
+            Empowering the
+            <span>Leaders of Tomorrow.</span>
+        </h1>
+
+        <p>
+            Martins DeMatrix University is a modern institution committed
+            to academic excellence, innovation, technology and leadership.
+        </p>
+
+        <div class="hero-buttons">
+            <a href="/register" class="primary-btn">Apply / Register</a>
+            <a href="/login" class="secondary-btn">Student Portal</a>
+        </div>
+    </div>
+
+    <div class="hero-card">
+        <div class="orb"></div>
+        <div class="card-content">
+            <span>MDU</span>
+            <h2>Future Ready Education</h2>
+            <p>Building knowledge. Creating possibilities.</p>
+        </div>
+    </div>
+</section>
+
+<section class="stats">
+    <div>
+        <strong>25+</strong>
+        <span>Academic Programmes</span>
+    </div>
+
+    <div>
+        <strong>8+</strong>
+        <span>Faculties & Schools</span>
+    </div>
+
+    <div>
+        <strong>100%</strong>
+        <span>Digital Portal Access</span>
+    </div>
+
+    <div>
+        <strong>24/7</strong>
+        <span>Student Services</span>
+    </div>
+</section>
+
+<section id="about" class="section">
+    <div class="section-heading">
+        <span>ABOUT MDU</span>
+        <h2>A University Built for the Future</h2>
+    </div>
+
+    <div class="about-grid">
+        <div>
+            <p>
+                Martins DeMatrix University is designed around modern
+                education, technology, research and entrepreneurship.
+                Our goal is to provide students with the knowledge and
+                practical skills required to succeed in a rapidly changing world.
+            </p>
+        </div>
+
+        <div class="feature-box">
+            <h3>Our Vision</h3>
+            <p>
+                To become a leading institution for innovation,
+                academic excellence and responsible leadership.
+            </p>
+        </div>
+
+        <div class="feature-box">
+            <h3>Our Mission</h3>
+            <p>
+                To provide accessible, quality education while developing
+                innovative thinkers and problem solvers.
+            </p>
+        </div>
+    </div>
+</section>
+
+<section id="faculties" class="section dark-section">
+    <div class="section-heading">
+        <span>ACADEMICS</span>
+        <h2>Explore Our Faculties</h2>
+    </div>
+
+    <div class="faculty-grid">
+        <div class="faculty-card">
+            <span>01</span>
+            <h3>Computing & Technology</h3>
+            <p>Computer Science, Software Engineering and Information Technology.</p>
+        </div>
+
+        <div class="faculty-card">
+            <span>02</span>
+            <h3>Business & Management</h3>
+            <p>Business Administration, Accounting, Finance and Entrepreneurship.</p>
+        </div>
+
+        <div class="faculty-card">
+            <span>03</span>
+            <h3>Engineering</h3>
+            <p>Modern engineering education focused on practical innovation.</p>
+        </div>
+
+        <div class="faculty-card">
+            <span>04</span>
+            <h3>Sciences</h3>
+            <p>Mathematics, Physics, Chemistry, Biology and related disciplines.</p>
+        </div>
+    </div>
+</section>
+
+<section id="admission" class="section">
+    <div class="admission-box">
+        <div>
+            <span>ADMISSIONS</span>
+            <h2>Start Your Academic Journey</h2>
+            <p>
+                Create your student account and begin your application
+                through the Martins DeMatrix University portal.
+            </p>
+        </div>
+
+        <a href="/register" class="primary-btn">Create Student Account</a>
+    </div>
+</section>
+
+<section class="section announcements">
+    <div class="section-heading">
+        <span>NOTICE BOARD</span>
+        <h2>Latest Announcements</h2>
+    </div>
+
+    {% for announcement in announcements %}
+    <article class="announcement">
+        <div class="announcement-icon">!</div>
+        <div>
+            <h3>{{ announcement["title"] }}</h3>
+            <p>{{ announcement["message"] }}</p>
+        </div>
+    </article>
+    {% else %}
+    <p>No announcements available.</p>
+    {% endfor %}
+</section>
+
+<footer>
+    <div>
+        <strong>Martins DeMatrix University</strong>
+        <p>Knowledge • Innovation • Excellence</p>
+    </div>
+
+    <div>
+        <p>© 2026 Martins DeMatrix University</p>
+    </div>
+
+    <a href="{{ url_for('admin_dashboard') }}"
+       class="admin-secret-dot"
+       aria-label="Administration">.</a>
+</footer>
+
+<script src="{{ url_for('static', filename='js/script.js') }}"></script>
+
+</body>
+</html>

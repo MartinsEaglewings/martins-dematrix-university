@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Dashboard | Martins DeMatrix University</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+<div class="portal">
+
+    <!-- TOP HEADER -->
+    <header class="portal-header">
+
+        <div class="portal-brand">
+            <div class="logo">MDU</div>
+
+            <div>
+                <strong>Martins DeMatrix University</strong>
+                <small>Student Information System</small>
+            </div>
+        </div>
+
+        <div class="user-area">
+            <div>
+                <strong>{{ student["full_name"] }}</strong><br>
+                <small>{{ student["matric_no"] }}</small>
+            </div>
+
+            <div class="user-avatar">
+                {{ student["full_name"][0]|upper }}
+            </div>
+        </div>
+
+    </header>
+
+
+    <div class="portal-body">
+
+        <!-- LEFT SIDEBAR -->
+        <aside class="sidebar">
+
+            <div class="sidebar-title">MAIN MENU</div>
+
+            <a href="/student/dashboard" class="active">
+                🏠 <span>Dashboard</span>
+            </a>
+
+            <a href="#profile">
+                👤 <span>My Profile</span>
+            </a>
+
+            <a href="#courses">
+                📚 <span>My Courses</span>
+            </a>
+
+            <a href="#registration">
+                📝 <span>Course Registration</span>
+            </a>
+
+            <a href="#results">
+                📊 <span>Results & GPA</span>
+            </a>
+
+            <a href="#timetable">
+                📅 <span>Timetable</span>
+            </a>
+
+            <a href="#fees">
+                💳 <span>School Fees</span>
+            </a>
+
+            <a href="#documents">
+                📄 <span>Documents</span>
+            </a>
+
+            <div class="sidebar-title">UNIVERSITY</div>
+
+            <a href="#announcements">
+                📢 <span>Announcements</span>
+            </a>
+
+            <a href="#support">
+                💬 <span>Student Support</span>
+            </a>
+
+            <div class="sidebar-title">ACCOUNT</div>
+
+            <a href="#settings">
+                ⚙️ <span>Settings</span>
+            </a>
+
+            <a href="/logout">
+                🚪 <span>Logout</span>
+            </a>
+
+        </aside>
+
+
+        <!-- MAIN CONTENT -->
+        <main class="portal-main">
+
+            <div class="dashboard-heading">
+
+                <p>STUDENT PORTAL</p>
+
+                <h1>
+                    Welcome back,
+                    {{ student["full_name"].split()[0] }} 👋
+                </h1>
+
+                <p>
+                    Here's your academic overview for Martins DeMatrix University.
+                </p>
+
+            </div>
+
+
+            <!-- OVERVIEW CARDS -->
+
+            <section class="overview-grid">
+
+                <div class="overview-card">
+                    <div class="icon">🎓</div>
+                    <h3>{{ student["level"] }}</h3>
+                    <p>Current Academic Level</p>
+                </div>
+
+                <div class="overview-card">
+                    <div class="icon">📚</div>
+                    <h3>{{ courses|length }}</h3>
+                    <p>Registered Courses</p>
+                </div>
+
+                <div class="overview-card">
+                    <div class="icon">⭐</div>
+                    <h3>{{ gpa }}</h3>
+                    <p>Current GPA</p>
+                </div>
+
+                <div class="overview-card">
+                    <div class="icon">💳</div>
+                    <h3>PAID</h3>
+                    <p>School Fees Status</p>
+                </div>
+
+            </section>
+
+
+            <!-- TWO COLUMN AREA -->
+
+            <div class="dashboard-grid">
+
+                <!-- RESULTS -->
+
+                <section class="portal-card" id="results">
+
+                    <div class="portal-card-header">
+
+                        <h2>Recent Academic Results</h2>
+
+                        <a href="#results">View All</a>
+
+                    </div>
+
+                    {% if results %}
+
+                        {% for result in results %}
+
+                        <div class="result-row">
+
+                            <strong>{{ result["course_code"] }}</strong>
+
+                            <span>{{ result["course_title"] }}</span>
+
+                            <span>{{ result["score"] }}</span>
+
+                            <span class="grade">
+                                {{ result["grade"] }}
+                            </span>
+
+                        </div>
+
+                        {% endfor %}
+
+                    {% else %}
+
+                        <div class="empty-state">
+                            <div>📊</div>
+                            <h3>No Results Yet</h3>
+                            <p>
+                                Your academic results will appear here
+                                once they are published.
+                            </p>
+                        </div>
+
+                    {% endif %}
+
+                </section>
+
+
+                <!-- QUICK ACTIONS -->
+
+                <section class="portal-card">
+
+                    <div class="portal-card-header">
+                        <h2>Quick Access</h2>
+                    </div>
+
+                    <div class="quick-actions">
+
+                        <a href="#registration" class="quick-action">
+                            📝
+                            <span>Course Registration</span>
+                        </a>
+
+                        <a href="#results" class="quick-action">
+                            📊
+                            <span>Check Results</span>
+                        </a>
+
+                        <a href="#fees" class="quick-action">
+                            💳
+                            <span>School Fees</span>
+                        </a>
+
+                        <a href="#timetable" class="quick-action">
+                            📅
+                            <span>View Timetable</span>
+                        </a>
+
+                        <a href="#documents" class="quick-action">
+                            📄
+                            <span>My Documents</span>
+                        </a>
+
+                    </div>
+
+                </section>
+
+            </div>
+
+
+            <!-- PROFILE -->
+
+            <section class="portal-card portal-section" id="profile">
+
+                <div class="portal-card-header">
+                    <h2>Student Profile</h2>
+                </div>
+
+                <div class="profile-grid">
+
+                    <div>
+                        <small>FULL NAME</small>
+                        <strong>{{ student["full_name"] }}</strong>
+                    </div>
+
+                    <div>
+                        <small>MATRICULATION NUMBER</small>
+                        <strong>{{ student["matric_no"] }}</strong>
+                    </div>
+
+                    <div>
+                        <small>EMAIL</small>
+                        <strong>{{ student["email"] }}</strong>
+                    </div>
+
+                    <div>
+                        <small>DEPARTMENT</small>
+                        <strong>{{ student["department"] }}</strong>
+                    </div>
+
+                    <div>
+                        <small>LEVEL</small>
+                        <strong>{{ student["level"] }}</strong>
+                    </div>
+
+                    <div>
+                        <small>PHONE</small>
+                        <strong>{{ student["phone"] or "Not provided" }}</strong>
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- COURSES -->
+
+            <section class="portal-card portal-section" id="courses">
+
+                <div class="portal-card-header">
+                    <h2>Registered Courses</h2>
+                </div>
+
+                {% if courses %}
+
+                <div class="course-list">
+
+                    {% for course in courses %}
+
+                    <div class="course-item">
+
+                        <div>
+                            <strong>{{ course["code"] }}</strong>
+                            <span>{{ course["title"] }}</span>
+                        </div>
+
+                        <b>{{ course["units"] }} Units</b>
+
+                    </div>
+
+                    {% endfor %}
+
+                </div>
+
+                {% else %}
+
+                <div class="empty-state">
+                    <div>📚</div>
+                    <h3>No Courses Registered</h3>
+                    <p>You have not registered any courses yet.</p>
+                </div>
+
+                {% endif %}
+
+            </section>
+
+
+            <!-- COURSE REGISTRATION -->
+
+            <section class="portal-card portal-section" id="registration">
+
+                <div class="portal-card-header">
+                    <h2>Course Registration</h2>
+                </div>
+
+                <p class="section-note">
+                    Course registration functionality will appear here.
+                </p>
+
+                <button class="primary-btn">
+                    Begin Course Registration
+                </button>
+
+            </section>
+
+
+            <!-- FEES -->
+
+            <section class="portal-card portal-section" id="fees">
+
+                <div class="portal-card-header">
+                    <h2>School Fees</h2>
+                </div>
+
+                <div class="fee-status">
+
+                    <div class="fee-icon">✓</div>
+
+                    <div>
+                        <strong>School Fees Status</strong>
+                        <p>Your current fee status is marked as paid.</p>
+                    </div>
+
+                    <span class="paid-badge">PAID</span>
+
+                </div>
+
+            </section>
+
+
+            <!-- TIMETABLE -->
+
+            <section class="portal-card portal-section" id="timetable">
+
+                <div class="portal-card-header">
+                    <h2>Academic Timetable</h2>
+                </div>
+
+                <div class="empty-state">
+                    <div>📅</div>
+                    <h3>Timetable Coming Soon</h3>
+                    <p>
+                        Your lecture and examination timetable will
+                        appear here.
+                    </p>
+                </div>
+
+            </section>
+
+
+            <!-- DOCUMENTS -->
+
+            <section class="portal-card portal-section" id="documents">
+
+                <div class="portal-card-header">
+                    <h2>Student Documents</h2>
+                </div>
+
+                <div class="document-grid">
+
+                    <div class="document-card">
+                        📄
+                        <strong>Student ID</strong>
+                        <span>Digital student identification</span>
+                    </div>
+
+                    <div class="document-card">
+                        📑
+                        <strong>Academic Record</strong>
+                        <span>View academic information</span>
+                    </div>
+
+                    <div class="document-card">
+                        🎓
+                        <strong>Certificates</strong>
+                        <span>Available certificates</span>
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- ANNOUNCEMENTS -->
+
+            <section class="portal-card portal-section" id="announcements">
+
+                <div class="portal-card-header">
+                    <h2>University Announcements</h2>
+                </div>
+
+                {% for announcement in announcements %}
+
+                <div class="announcement">
+
+                    <div class="announcement-icon">!</div>
+
+                    <div>
+                        <h3>{{ announcement["title"] }}</h3>
+                        <p>{{ announcement["message"] }}</p>
+                    </div>
+
+                </div>
+
+                {% else %}
+
+                <p>No announcements available.</p>
+
+                {% endfor %}
+
+            </section>
+
+
+            <footer class="portal-footer">
+                <p>
+                    © 2026 Martins DeMatrix University
+                </p>
+
+                <p>
+                    Student Information System
+                </p>
+            </footer>
+
+        </main>
+
+    </div>
+
+</div>
+
+<script src="{{ url_for('static', filename='js/script.js') }}"></script>
+
+</body>
+</html>

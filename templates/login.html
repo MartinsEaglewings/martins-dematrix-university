@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Login | MDU</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body class="auth-page">
+
+<div class="auth-card">
+
+    <div class="logo large">MDU</div>
+
+    <h1>Student Portal</h1>
+    <p>Sign in to access your Martins DeMatrix University account.</p>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+            <div class="alert {{ category }}">{{ message }}</div>
+        {% endfor %}
+    {% endwith %}
+
+    <form method="POST">
+
+        <label>Email Address</label>
+        <input type="email" name="email" placeholder="student@example.com" required>
+
+        <label>Password</label>
+        <input type="password" name="password" placeholder="Enter password" required>
+
+        <button type="submit" class="primary-btn full">Sign In</button>
+
+    </form>
+
+    <p class="auth-link">
+        Don't have an account?
+        <a href="/register">Create one</a>
+    </p>
+
+    <a href="/" class="back-link">← Back to University</a>
+
+</div>
+
+</body>
+</html>

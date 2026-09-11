@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ student["full_name"] }} — MDU Admin</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body class="admin-body">
+
+<div class="admin-student-page">
+
+    <a href="{{ url_for('admin_dashboard') }}" class="admin-back-dashboard">
+        ← Back to Command Center
+    </a>
+
+    <div class="admin-student-hero">
+
+        <div class="admin-student-avatar">
+            {{ student["full_name"][0]|upper }}
+        </div>
+
+        <div>
+            <span>STUDENT ACCOUNT</span>
+
+            <h1>{{ student["full_name"] }}</h1>
+
+            <p>{{ student["matric_no"] }} • {{ student["department"] }}</p>
+        </div>
+
+    </div>
+
+
+    <div class="admin-stat-grid">
+
+        <div class="admin-stat-card">
+            <span>LEVEL</span>
+            <strong>{{ student["level"] }}</strong>
+        </div>
+
+        <div class="admin-stat-card">
+            <span>RESULTS</span>
+            <strong>{{ results|length }}</strong>
+        </div>
+
+        <div class="admin-stat-card">
+            <span>GPA</span>
+            <strong>{{ "%.2f"|format(gpa) }}</strong>
+        </div>
+
+    </div>
+
+
+    <div class="admin-card">
+
+        <h2>Student Information</h2>
+
+        <div class="admin-student-info">
+
+            <div>
+                <span>Full Name</span>
+                <strong>{{ student["full_name"] }}</strong>
+            </div>
+
+            <div>
+                <span>Matric Number</span>
+                <strong>{{ student["matric_no"] }}</strong>
+            </div>
+
+            <div>
+                <span>Email</span>
+                <strong>{{ student["email"] }}</strong>
+            </div>
+
+            <div>
+                <span>Phone</span>
+                <strong>{{ student["phone"] or "Not provided" }}</strong>
+            </div>
+
+            <div>
+                <span>Department</span>
+                <strong>{{ student["department"] }}</strong>
+            </div>
+
+            <div>
+                <span>Level</span>
+                <strong>{{ student["level"] }}</strong>
+            </div>
+
+            <div>
+                <span>Account Created</span>
+                <strong>{{ student["created_at"] }}</strong>
+            </div>
+
+        </div>
+
+        <p class="admin-security-note">
+            🔒 Student passwords are intentionally never displayed to administrators.
+        </p>
+
+    </div>
+
+
+    <div class="admin-card">
+
+        <h2>Academic Results</h2>
+
+        <div class="admin-table-wrap">
+
+            <table class="admin-table">
+
+                <thead>
+                    <tr>
+                        <th>Course</th>
+                        <th>Units</th>
+                        <th>Score</th>
+                        <th>Grade</th>
+                        <th>GP</th>
+                        <th>Semester</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                {% for result in results %}
+
+                <tr>
+
+                    <td>
+                        <strong>{{ result["course_code"] }}</strong><br>
+                        <small>{{ result["course_title"] }}</small>
+                    </td>
+
+                    <td>{{ result["units"] }}</td>
+
+                    <td>{{ result["score"] }}</td>
+
+                    <td><strong>{{ result["grade"] }}</strong></td>
+
+                    <td>{{ result["grade_point"] }}</td>
+
+                    <td>{{ result["semester"] }}</td>
+
+                </tr>
+
+                {% else %}
+
+                <tr>
+                    <td colspan="6" class="admin-empty">
+                        No results published for this student.
+                    </td>
+                </tr>
+
+                {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+
+    <div class="admin-card">
+
+        <h2>Registered Courses</h2>
+
+        <div class="admin-table-wrap">
+
+            <table class="admin-table">
+
+                <thead>
+                    <tr>
+                        <th>Code</th>
+                        <th>Course</th>
+                        <th>Units</th>
+                        <th>Semester</th>
+                        <th>Session</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                {% for course in courses %}
+
+                <tr>
+                    <td>{{ course["code"] }}</td>
+                    <td>{{ course["title"] }}</td>
+                    <td>{{ course["units"] }}</td>
+                    <td>{{ course["semester"] }}</td>
+                    <td>{{ course["session"] }}</td>
+                </tr>
+
+                {% else %}
+
+                <tr>
+                    <td colspan="5" class="admin-empty">
+                        No registered courses found.
+                    </td>
+                </tr>
+
+                {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+</html>
