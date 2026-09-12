@@ -5,3 +5,8 @@ __pycache__/
 venv/
 university.db
 .env
+migrate_to_postgres.py
+app.py.before-postgres-switch
+app.py.sqlite-backup
+requirements.txt.backup
+university.db.safe-backup

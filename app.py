@@ -1,7 +1,8 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 from werkzeug.security import generate_password_hash, check_password_hash
-import sqlite3
 import os
+import psycopg2
+from psycopg2.extras import RealDictCursor
 
 app = Flask(__name__)
 
@@ -18,10 +19,37 @@ DATABASE = os.path.join(BASE_DIR, "university.db")
 ADMIN_PIN = "martins_pass_2026"
 
 
+class PostgreSQLConnection:
+    def __init__(self, connection):
+        self.connection = connection
+
+    def execute(self, query, params=()):
+        cursor = self.connection.cursor()
+        cursor.execute(query, params)
+        return cursor
+
+    def commit(self):
+        self.connection.commit()
+
+    def close(self):
+        self.connection.close()
+
+
 def get_db():
-    conn = sqlite3.connect(DATABASE)
-    conn.row_factory = sqlite3.Row
-    return conn
+    database_url = os.environ.get("DATABASE_URL")
+
+    if not database_url:
+        raise RuntimeError(
+            "DATABASE_URL is not configured."
+        )
+
+    conn = psycopg2.connect(
+        database_url,
+        cursor_factory=RealDictCursor
+    )
+    conn.autocommit = False
+
+    return PostgreSQLConnection(conn)
 
 
 def init_db():
@@ -29,7 +57,7 @@ def init_db():
 
     conn.execute("""
         CREATE TABLE IF NOT EXISTS students (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id SERIAL PRIMARY KEY,
             matric_no TEXT UNIQUE NOT NULL,
             full_name TEXT NOT NULL,
             email TEXT UNIQUE NOT NULL,
@@ -43,7 +71,7 @@ def init_db():
 
     conn.execute("""
         CREATE TABLE IF NOT EXISTS courses (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id SERIAL PRIMARY KEY,
             code TEXT NOT NULL,
             title TEXT NOT NULL,
             units INTEGER NOT NULL,
@@ -53,7 +81,7 @@ def init_db():
 
     conn.execute("""
         CREATE TABLE IF NOT EXISTS registrations (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id SERIAL PRIMARY KEY,
             student_id INTEGER NOT NULL,
             course_id INTEGER NOT NULL,
             session TEXT NOT NULL,
@@ -64,7 +92,7 @@ def init_db():
 
     conn.execute("""
         CREATE TABLE IF NOT EXISTS results (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id SERIAL PRIMARY KEY,
             student_id INTEGER NOT NULL,
             course_code TEXT NOT NULL,
             course_title TEXT NOT NULL,
@@ -79,7 +107,7 @@ def init_db():
 
     conn.execute("""
         CREATE TABLE IF NOT EXISTS announcements (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id SERIAL PRIMARY KEY,
             title TEXT NOT NULL,
             message TEXT NOT NULL,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -89,7 +117,7 @@ def init_db():
     # NEW: assignments
     conn.execute("""
         CREATE TABLE IF NOT EXISTS assignments (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id SERIAL PRIMARY KEY,
             title TEXT NOT NULL,
             description TEXT NOT NULL,
             course_code TEXT DEFAULT '',
@@ -117,7 +145,7 @@ def init_db():
 
         conn.executemany("""
             INSERT INTO courses(code, title, units, semester)
-            VALUES (?, ?, ?, ?)
+            VALUES (%s, %s, %s, %s)
         """, courses)
 
     # Demo announcement
@@ -128,7 +156,7 @@ def init_db():
     if announcement_count == 0:
         conn.execute("""
             INSERT INTO announcements(title, message)
-            VALUES (?, ?)
+            VALUES (%s, %s)
         """, (
             "Welcome to Martins DeMatrix University",
             "The university portal is now open for student registration."
@@ -181,7 +209,7 @@ def register():
         conn = get_db()
 
         existing = conn.execute(
-            "SELECT id FROM students WHERE email = ?",
+            "SELECT id FROM students WHERE email = %s",
             (email,)
         ).fetchone()
 
@@ -199,7 +227,7 @@ def register():
         conn.execute("""
             INSERT INTO students
             (matric_no, full_name, email, password)
-            VALUES (?, ?, ?, ?)
+            VALUES (%s, %s, %s, %s)
         """, (
             matric_no,
             full_name,
@@ -233,7 +261,7 @@ def login():
         conn = get_db()
 
         student = conn.execute(
-            "SELECT * FROM students WHERE email = ?",
+            "SELECT * FROM students WHERE email = %s",
             (email,)
         ).fetchone()
 
@@ -260,20 +288,20 @@ def student_dashboard():
     conn = get_db()
 
     student = conn.execute(
-        "SELECT * FROM students WHERE id = ?",
+        "SELECT * FROM students WHERE id = %s",
         (session["student_id"],)
     ).fetchone()
 
     results = conn.execute("""
         SELECT * FROM results
-        WHERE student_id = ?
+        WHERE student_id = %s
         ORDER BY id DESC
     """, (session["student_id"],)).fetchall()
 
     courses = conn.execute("""
         SELECT c.* FROM courses c
         JOIN registrations r ON c.id = r.course_id
-        WHERE r.student_id = ?
+        WHERE r.student_id = %s
     """, (session["student_id"],)).fetchall()
 
     announcements = conn.execute("""
@@ -453,7 +481,7 @@ def admin_student(student_id):
         SELECT id, matric_no, full_name, email,
                department, level, phone, created_at
         FROM students
-        WHERE id = ?
+        WHERE id = %s
     """, (student_id,)).fetchone()
 
     if not student:
@@ -464,7 +492,7 @@ def admin_student(student_id):
     results = conn.execute("""
         SELECT *
         FROM results
-        WHERE student_id = ?
+        WHERE student_id = %s
         ORDER BY id DESC
     """, (student_id,)).fetchall()
 
@@ -472,7 +500,7 @@ def admin_student(student_id):
         SELECT c.*, r.session
         FROM courses c
         JOIN registrations r ON c.id = r.course_id
-        WHERE r.student_id = ?
+        WHERE r.student_id = %s
         ORDER BY c.id DESC
     """, (student_id,)).fetchall()
 
@@ -549,7 +577,7 @@ def admin_add_result():
     conn = get_db()
 
     student = conn.execute(
-        "SELECT id FROM students WHERE id = ?",
+        "SELECT id FROM students WHERE id = %s",
         (student_id,)
     ).fetchone()
 
@@ -562,7 +590,7 @@ def admin_add_result():
         INSERT INTO results
         (student_id, course_code, course_title,
          units, score, grade, grade_point, semester)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
     """, (
         student_id,
         course_code,
@@ -598,7 +626,7 @@ def admin_delete_result(result_id):
     conn = get_db()
 
     conn.execute(
-        "DELETE FROM results WHERE id = ?",
+        "DELETE FROM results WHERE id = %s",
         (result_id,)
     )
 
@@ -631,7 +659,7 @@ def admin_add_announcement():
 
     conn.execute("""
         INSERT INTO announcements(title, message)
-        VALUES (?, ?)
+        VALUES (%s, %s)
     """, (title, message))
 
     conn.commit()
@@ -655,7 +683,7 @@ def admin_delete_announcement(announcement_id):
     conn = get_db()
 
     conn.execute(
-        "DELETE FROM announcements WHERE id = ?",
+        "DELETE FROM announcements WHERE id = %s",
         (announcement_id,)
     )
 
@@ -691,7 +719,7 @@ def admin_add_assignment():
     conn.execute("""
         INSERT INTO assignments
         (title, description, course_code, due_date)
-        VALUES (?, ?, ?, ?)
+        VALUES (%s, %s, %s, %s)
     """, (
         title,
         description,
@@ -720,7 +748,7 @@ def admin_delete_assignment(assignment_id):
     conn = get_db()
 
     conn.execute(
-        "DELETE FROM assignments WHERE id = ?",
+        "DELETE FROM assignments WHERE id = %s",
         (assignment_id,)
     )
 
@@ -759,7 +787,7 @@ def admin_add_course():
 
     conn.execute("""
         INSERT INTO courses(code, title, units, semester)
-        VALUES (?, ?, ?, ?)
+        VALUES (%s, %s, %s, %s)
     """, (
         code,
         title,
@@ -788,7 +816,7 @@ def admin_delete_course(course_id):
     conn = get_db()
 
     conn.execute(
-        "DELETE FROM courses WHERE id = ?",
+        "DELETE FROM courses WHERE id = %s",
         (course_id,)
     )
 
