@@ -2,7 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for, session, f
 from werkzeug.security import generate_password_hash, check_password_hash
 import os
 import psycopg2
-from psycopg2.extras import RealDictCursor
+from psycopg2.extras import DictCursor
 
 app = Flask(__name__)
 
@@ -45,7 +45,7 @@ def get_db():
 
     conn = psycopg2.connect(
         database_url,
-        cursor_factory=RealDictCursor
+        cursor_factory=DictCursor
     )
     conn.autocommit = False
 
